@@ -10,10 +10,11 @@ class ReporteCreate(BaseModel):
     vendedor_id: int
     motivo: str
     descripcion: Optional[str] = None
+    foto_url: Optional[str] = None
 
 
 class ReporteDecision(BaseModel):
-    estado: EstadoReporte  # revisado o descartado
+    estado: EstadoReporte
 
 
 class ReporteOut(BaseModel):
@@ -22,6 +23,7 @@ class ReporteOut(BaseModel):
     vendedor_id: int
     motivo: str
     descripcion: Optional[str] = None
+    foto_url: Optional[str] = None
     estado: EstadoReporte
     created_at: datetime
 

@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -11,13 +12,20 @@ from app.schemas.reporte import ReporteCreate, ReporteDecision, ReporteOut
 router = APIRouter(prefix="/reportes", tags=["reportes"])
 
 
+class ReporteCreateExtendido(BaseModel):
+    vendedor_id: int
+    motivo: str
+    descripcion: Optional[str] = None
+    foto_url: Optional[str] = None
+
+
 @router.post("", response_model=ReporteOut, status_code=201)
 def crear_reporte(
-    data: ReporteCreate,
+    data: ReporteCreateExtendido,
     current_user: Usuario = Depends(require_rol(RolUsuario.cliente)),
     db: Session = Depends(get_db),
 ):
-    """HU11: cliente reporta un vendedor."""
+    """HU11: cliente reporta un vendedor, opcionalmente con foto."""
     cliente = db.query(Cliente).filter(Cliente.usuario_id == current_user.id).first()
     if not cliente:
         raise HTTPException(status_code=404, detail="Perfil de cliente no encontrado")
@@ -31,6 +39,7 @@ def crear_reporte(
         vendedor_id=data.vendedor_id,
         motivo=data.motivo,
         descripcion=data.descripcion,
+        foto_url=data.foto_url,
     )
     db.add(reporte)
     db.commit()
@@ -43,10 +52,10 @@ def reportes_pendientes(
     current_user: Usuario = Depends(require_rol(RolUsuario.inspector)),
     db: Session = Depends(get_db),
 ):
-    """HU12: inspector lista reportes pendientes."""
     return (
         db.query(ReporteCiudadano)
         .filter(ReporteCiudadano.estado == EstadoReporte.pendiente)
+        .order_by(ReporteCiudadano.created_at.desc())
         .all()
     )
 
@@ -58,9 +67,8 @@ def resolver_reporte(
     current_user: Usuario = Depends(require_rol(RolUsuario.inspector)),
     db: Session = Depends(get_db),
 ):
-    """HU12: inspector resuelve un reporte."""
     if decision.estado == EstadoReporte.pendiente:
-        raise HTTPException(status_code=400, detail="La decisión debe ser revisado o descartado")
+        raise HTTPException(status_code=400, detail="Estado inválido")
     reporte = db.query(ReporteCiudadano).filter(ReporteCiudadano.id == reporte_id).first()
     if not reporte:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
@@ -78,4 +86,4 @@ def mis_reportes(
     cliente = db.query(Cliente).filter(Cliente.usuario_id == current_user.id).first()
     if not cliente:
         raise HTTPException(status_code=404, detail="Perfil de cliente no encontrado")
-    return cliente.reportes
+    return sorted(cliente.reportes, key=lambda r: r.created_at, reverse=True)
