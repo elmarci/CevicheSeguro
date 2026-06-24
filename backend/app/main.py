@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth
+from app.routers import alertas, auth, documentos, pedidos, productos, reportes, vendedores
 
 app = FastAPI(title="CevicheSeguro API", version="1.0.0")
 
@@ -14,6 +14,12 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(vendedores.router)
+app.include_router(documentos.router)
+app.include_router(productos.router)
+app.include_router(pedidos.router)
+app.include_router(reportes.router)
+app.include_router(alertas.router)
 
 
 @app.get("/health")
