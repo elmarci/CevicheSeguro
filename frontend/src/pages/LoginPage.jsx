@@ -35,10 +35,10 @@ export default function LoginPage() {
           <h1 style={s.heroTitle}>🦑 CevicheSeguro</h1>
           <p style={s.heroSub}>El marketplace donde cada plato de ceviche viene con garantía sanitaria certificada</p>
           <div style={s.features}>
-            <Feature icon="✅" text="Vendedores verificados" />
-            <Feature icon="🧊" text="Cadena de frío garantizada" />
-            <Feature icon="🔬" text="Especie de pescado certificada" />
-            <Feature icon="📋" text="Licencias municipales vigentes" />
+            <Feature icon="✅" text="Vendedores con licencia verificada" />
+            <Feature icon="🏥" text="Certificado sanitario vigente" />
+            <Feature icon="🔬" text="Especie de pescado certificada en laboratorio" />
+            <Feature icon="🚨" text="Sistema de reportes ciudadanos" />
           </div>
         </div>
       </div>
